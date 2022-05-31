@@ -1,6 +1,7 @@
 /target/
 /db/
 
-/.project
-/.settings
+# eclipse stuffs
 /.classpath
+/.project
+/.settings/
