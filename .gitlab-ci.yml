@@ -1,0 +1,41 @@
+image: riccardocampisano/public:docker_buildx_master
+
+services:
+  - docker:stable-dind
+
+before_script:
+  - apk add --no-cache bash git xmlstarlet
+  - mkdir -m 777 -p .custom_cache
+
+stages:
+  - test
+  - deliver
+
+Test:
+  stage: test
+  only:
+    - branches
+  except:
+    - master
+  cache:
+    key: custom-cache-$CI_COMMIT_REF_SLUG
+    paths:
+      - .custom-cache
+  script:
+    - ./ci/build.sh
+    - ./ci/test.sh
+    - ./ci/coverage.sh
+
+Deliver:
+  stage: deliver
+  only:
+    - master
+  cache:
+    key: custom-cache-$CI_COMMIT_REF_SLUG
+    paths:
+      - .custom-cache
+  script:
+    - ./ci/build.sh
+    - ./ci/test.sh
+    - ./ci/deliver.sh
+    - ./ci/coverage.sh
