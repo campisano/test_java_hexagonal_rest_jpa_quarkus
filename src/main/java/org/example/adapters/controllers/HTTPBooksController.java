@@ -60,7 +60,7 @@ public class HTTPBooksController {
 			return Response.status(Response.Status.CREATED).entity(book).build();
 		} catch (IsbnAlreadyExistsException | AuthorInvalidException | BookInvalidException exception) {
 			LOGGER.error("exception, message={}", exception.getMessage());
-			return Response.status(433).entity(null).build();
+			return Response.status(422).entity(null).build();
 		}
 	}
 
