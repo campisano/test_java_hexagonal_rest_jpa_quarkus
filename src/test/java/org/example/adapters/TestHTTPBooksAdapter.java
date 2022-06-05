@@ -33,34 +33,6 @@ public class TestHTTPBooksAdapter {
 	}
 
 	@Test
-	public void listAllWhenExists() throws Exception {
-		rest(ContentType.JSON).body("{\"name\":\"author1\"}").post("/v1/authors").then().statusCode(201);
-		rest(ContentType.JSON).body("{\"name\":\"author2\"}").post("/v1/authors").then().statusCode(201);
-
-		rest(ContentType.JSON).body(
-				"{\"isbn\":\"isbn1\",\"title\":\"title1\",\"authors\":[\"author1\"],\"description\":\"description1\"}")
-				.post("/v1/books").then().statusCode(201);
-		rest(ContentType.JSON).body(
-				"{\"isbn\":\"isbn2\",\"title\":\"title2\",\"authors\":[\"author2\"],\"description\":\"description2\"}")
-				.post("/v1/books").then().statusCode(201);
-
-		Response response = rest(ContentType.JSON).get("/v1/books");
-
-		Assertions.assertEquals(200, response.getStatusCode());
-		ObjectMapper om = new ObjectMapper();
-		Assertions.assertEquals(om.readTree("["
-				+ "{\"isbn\":\"isbn1\",\"title\":\"title1\",\"authors\":[\"author1\"],\"description\":\"description1\"}"
-				+ ","
-				+ "{\"isbn\":\"isbn2\",\"title\":\"title2\",\"authors\":[\"author2\"],\"description\":\"description2\"}"
-				+ "]"), om.readTree(response.jsonPath().prettify()));
-
-//        Assertions.assertNotNull(response.getBody().asString());
-//        Assertions.assertEquals(2, response.jsonPath().getList("$").size());
-//		  List<DeserializableBookDTO> responseBooks = response.jsonPath().getList("", DeserializableBookDTO.class);
-//		  Assertions.assertEquals(2, responseBooks.size());
-	}
-
-	@Test
 	public void listAllWhenExists2() throws Exception {
 		AuthorDTO a1 = new AuthorDTO("author1");
 		AuthorDTO a2 = new AuthorDTO("author2");
@@ -112,15 +84,15 @@ public class TestHTTPBooksAdapter {
 
 	@Test
 	public void post() throws Exception {
-		AuthorDTO a1 = new AuthorDTO("author1");
-		rest(ContentType.JSON).body(a1).post("/v1/authors");
-		BookDTO b1 = new BookDTO("isbn1", "title1", new HashSet<>(Arrays.asList(a1.getName())), "description1");
+		AuthorDTO author = new AuthorDTO("author1");
+		rest(ContentType.JSON).body(author).post("/v1/authors");
 
-		Response response = rest(ContentType.JSON).body(b1).post("/v1/books");
+		BookDTO book = new BookDTO("isbn1", "title1", new HashSet<>(Arrays.asList(author.getName())), "description1");
+		Response response = rest(ContentType.JSON).body(book).post("/v1/books");
 
 		Assertions.assertEquals(201, response.getStatusCode());
 		ObjectMapper om = new ObjectMapper();
-		Assertions.assertEquals(om.readTree(om.writeValueAsString(b1)), om.readTree(response.jsonPath().prettify()));
+		Assertions.assertEquals(om.readTree(om.writeValueAsString(book)), om.readTree(response.jsonPath().prettify()));
 	}
 
 	@Test
@@ -136,9 +108,8 @@ public class TestHTTPBooksAdapter {
 			rest(ContentType.JSON).body(b).post("/v1/books");
 		});
 
-		BookDTO requestBody = new BookDTO("isbn1", "title1", new HashSet<>(Arrays.asList(a1.getName())),
-				"description1");
-		Response response = rest(ContentType.JSON).body(requestBody).post("/v1/books");
+		BookDTO book = new BookDTO("isbn1", "title1", new HashSet<>(Arrays.asList(a1.getName())), "description1");
+		Response response = rest(ContentType.JSON).body(book).post("/v1/books");
 
 		Assertions.assertEquals(422, response.getStatusCode());
 		Assertions.assertEquals("", response.getBody().asString());
