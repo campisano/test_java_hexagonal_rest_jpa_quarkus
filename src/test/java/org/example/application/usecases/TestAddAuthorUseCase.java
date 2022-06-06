@@ -26,58 +26,85 @@ public class TestAddAuthorUseCase {
 
     @Test
     void when_add_new_then_call_findByName() throws Exception {
+        // Arrange
         authorsRepository.findByName_out = Optional.empty();
 
+        // Act
         addAuthorUseCase.execute(sampleAuthorDto);
 
+        // Assert
         Assertions.assertEquals(sampleAuthorDto.getName(), authorsRepository.findByName_in.toString());
     }
 
     @Test
     void when_add_new_then_call_create() throws Exception {
+        // Arrange
         authorsRepository.findByName_out = Optional.empty();
 
+        // Act
         addAuthorUseCase.execute(sampleAuthorDto);
 
+        // Assert
         Assertions.assertEquals(sampleAuthorDto.toString(), authorsRepository.create_in.toString());
     }
 
     @Test
     void when_add_new_then_new_returns() throws Exception {
+        // Arrange
         authorsRepository.create_out = sampleAuthorDto;
         authorsRepository.findByName_out = Optional.empty();
 
-        AuthorDTO author = addAuthorUseCase.execute(sampleAuthorDto);
+        // Act
+        var author = addAuthorUseCase.execute(sampleAuthorDto);
 
+        // Assert
         Assertions.assertEquals(sampleAuthorDto.toString(), author.toString());
     }
 
     @Test
     void when_add_existent_then_throw_exception() throws Exception {
+        // Arrange
         authorsRepository.findByName_out = Optional.of(sampleAuthorDto);
 
-        Assertions.assertThrows(AuthorAlreadyExistsException.class, () -> {
+        // Act
+        var exception = Assertions.assertThrows(Exception.class, () -> {
             addAuthorUseCase.execute(sampleAuthorDto);
         });
+
+        // Assert
+        Assertions.assertEquals(AuthorAlreadyExistsException.class, exception.getClass());
+        Assertions.assertTrue(exception.getMessage().matches("Author(.*)already exists"));
     }
 
     @Test
     void when_add_null_name_then_throw_exception() throws Exception {
+        // Arrange
         authorsRepository.findByName_out = Optional.empty();
-        AuthorDTO invalidAuthor = new AuthorDTO(null);
 
-        Assertions.assertThrows(AuthorInvalidException.class, () -> {
+        // Act
+        var invalidAuthor = new AuthorDTO(null);
+        var exception = Assertions.assertThrows(Exception.class, () -> {
             addAuthorUseCase.execute(invalidAuthor);
         });
+
+        // Assert
+        Assertions.assertEquals(AuthorInvalidException.class, exception.getClass());
+        Assertions.assertTrue(exception.getMessage().matches("Name(.*)is invalid"));
     }
 
     @Test
     void when_add_empty_name_then_throw_exception() throws Exception {
+        // Arrange
         authorsRepository.findByName_out = Optional.empty();
-        AuthorDTO invalidAuthor = new AuthorDTO("");
 
-        Assertions.assertThrows(AuthorInvalidException.class, () -> {
+        // Act
+        var invalidAuthor = new AuthorDTO("");
+        var exception = Assertions.assertThrows(Exception.class, () -> {
             addAuthorUseCase.execute(invalidAuthor);
         });
+
+        // Assert
+        Assertions.assertEquals(AuthorInvalidException.class, exception.getClass());
+        Assertions.assertTrue(exception.getMessage().matches("Name(.*)is invalid"));
     }
 }

@@ -30,28 +30,40 @@ public class TestGetBookUseCase {
 
     @Test
     void when_get_existent_then_call_findByIsbn() throws Exception {
+        // Arrange
         booksRepository.findByIsbn_out = Optional.of(sampleBookDto);
 
+        // Act
         getBookUseCase.execute(sampleIsbn);
 
+        // Assert
         Assertions.assertEquals(sampleBookDto.getIsbn(), booksRepository.findByIsbn_in.toString());
     }
 
     @Test
     void when_get_existent_then_it_returns() throws Exception {
+        // Arrange
         booksRepository.findByIsbn_out = Optional.of(sampleBookDto);
 
-        BookDTO book = getBookUseCase.execute(sampleIsbn);
+        // Act
+        var book = getBookUseCase.execute(sampleIsbn);
 
+        // Assert
         Assertions.assertEquals(sampleBookDto.toString(), book.toString());
     }
 
     @Test
     void when_get_not_existent_then_throw_exception() throws Exception {
+        // Arrange
         booksRepository.findByIsbn_out = Optional.empty();
 
-        Assertions.assertThrows(IsbnNotExistsException.class, () -> {
+        // Act
+        var exception = Assertions.assertThrows(Exception.class, () -> {
             getBookUseCase.execute(sampleIsbn);
         });
+
+        // Assert
+        Assertions.assertEquals(IsbnNotExistsException.class, exception.getClass());
+        Assertions.assertTrue(exception.getMessage().matches("Book(.*)not exists"));
     }
 }
