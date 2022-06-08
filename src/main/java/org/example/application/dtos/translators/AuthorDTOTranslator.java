@@ -14,9 +14,11 @@ public class AuthorDTOTranslator {
 
     public static Set<Author> fromDTO(Set<AuthorDTO> dtos) {
         Set<Author> authors = new HashSet<>();
+
         for (AuthorDTO dto : dtos) {
             authors.add(fromDTO(dto));
         }
+
         return authors;
     }
 

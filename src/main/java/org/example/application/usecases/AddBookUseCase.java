@@ -30,17 +30,16 @@ public class AddBookUseCase implements AddBookUseCasePort {
     public BookDTO execute(BookDTO bookDto)
             throws IsbnAlreadyExistsException, BookInvalidException, AuthorInvalidException {
 
-        Set<Author> authors = retrieveExistingAuthors(bookDto.getAuthors());
-        Book book = newBook(bookDto, authors);
+        var authors = retrieveExistingAuthors(bookDto.getAuthors());
+        var book = newBook(bookDto, authors);
 
         return booksRepository.create(BookDTOTranslator.toDTO(book));
     }
 
     private Set<Author> retrieveExistingAuthors(Set<String> authorNames) throws AuthorInvalidException {
-        Set<Author> existingAuthors = AuthorDTOTranslator.fromDTO(authorsRepository.findByNameIn(authorNames));
-        Set<String> existingAuthorNames = existingAuthors.stream().map(author -> author.getName())
-                .collect(Collectors.toSet());
-        Set<String> unExistingAuthorNames = authorNames.stream().collect(Collectors.toSet());
+        var existingAuthors = AuthorDTOTranslator.fromDTO(authorsRepository.findByNameIn(authorNames));
+        var existingAuthorNames = existingAuthors.stream().map(author -> author.getName()).collect(Collectors.toSet());
+        var unExistingAuthorNames = authorNames.stream().collect(Collectors.toSet());
         unExistingAuthorNames.removeAll(existingAuthorNames);
 
         if (unExistingAuthorNames.size() > 0) {

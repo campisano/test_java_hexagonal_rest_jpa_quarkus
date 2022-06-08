@@ -1,6 +1,5 @@
 package org.example.adapters.controllers;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -31,73 +30,79 @@ import org.slf4j.LoggerFactory;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class HTTPBooksController {
-	private static final Logger LOGGER = LoggerFactory.getLogger(HTTPBooksController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HTTPBooksController.class);
 
-	private AddBookUseCasePort addBookUseCase;
-	private GetBookUseCasePort getBookUseCase;
-	private ListAllBooksUseCasePort listAllBooksUseCase;
+    private AddBookUseCasePort addBookUseCase;
+    private GetBookUseCasePort getBookUseCase;
+    private ListAllBooksUseCasePort listAllBooksUseCase;
 
-	public HTTPBooksController(AddBookUseCasePort addBookUseCase, GetBookUseCasePort getBookUseCase,
-			ListAllBooksUseCasePort listAllBooksUseCase) {
-		this.addBookUseCase = addBookUseCase;
-		this.getBookUseCase = getBookUseCase;
-		this.listAllBooksUseCase = listAllBooksUseCase;
-	}
+    public HTTPBooksController(AddBookUseCasePort addBookUseCase, GetBookUseCasePort getBookUseCase,
+            ListAllBooksUseCasePort listAllBooksUseCase) {
+        this.addBookUseCase = addBookUseCase;
+        this.getBookUseCase = getBookUseCase;
+        this.listAllBooksUseCase = listAllBooksUseCase;
+    }
 
-	@POST
-	public Response add(@Context Request request, @Context UriInfo uriInfo, Optional<AddBookRequest> body) {
-		LOGGER.info("method={}, path={}, body={}", request.getMethod(), uriInfo.getRequestUri(), body);
+    @POST
+    public Response add(@Context Request request, @Context UriInfo uriInfo, Optional<AddBookRequest> body) {
+        LOGGER.info("method={}, path={}, body={}", request.getMethod(), uriInfo.getRequestUri(), body);
 
-		if (!body.isPresent()) {
-			LOGGER.error("request without body");
-			return Response.status(Response.Status.BAD_REQUEST).entity(null).build();
-		}
+        if (!body.isPresent()) {
+            LOGGER.error("request without body");
 
-		try {
-			BookDTO book = addBookUseCase.execute(
-					new BookDTO(body.get().isbn, body.get().title, body.get().authors, body.get().description));
-			LOGGER.info("created, book={}", book);
-			return Response.status(Response.Status.CREATED).entity(book).build();
-		} catch (IsbnAlreadyExistsException | AuthorInvalidException | BookInvalidException exception) {
-			LOGGER.error("exception, message={}", exception.getMessage());
-			return Response.status(422).entity(null).build();
-		}
-	}
+            return Response.status(Response.Status.BAD_REQUEST).entity(null).build();
+        }
 
-	@GET
-	@Path("/{isbn}")
-	public Response getByIsbn(@Context Request request, @Context UriInfo uriInfo, @PathParam("isbn") String isbn) {
-		LOGGER.info("method={}, path={}, isbn={}", request.getMethod(), uriInfo.getRequestUri(), isbn);
+        try {
+            var book = addBookUseCase.execute(
+                    new BookDTO(body.get().isbn, body.get().title, body.get().authors, body.get().description));
+            LOGGER.info("created, book={}", book);
 
-		try {
-			BookDTO book = getBookUseCase.execute(isbn);
-			LOGGER.info("ok, isbn={}", isbn);
-			return Response.status(Response.Status.OK).entity(book).build();
-		} catch (IsbnNotExistsException exception) {
-			LOGGER.error("exception, message={}", exception.getMessage());
-			return Response.status(Response.Status.NOT_FOUND).entity(null).build();
-		}
-	}
+            return Response.status(Response.Status.CREATED).entity(book).build();
+        } catch (IsbnAlreadyExistsException | AuthorInvalidException | BookInvalidException exception) {
+            LOGGER.error("exception, message={}", exception.getMessage());
 
-	@GET
-	public Response listAll(@Context Request request, @Context UriInfo uriInfo) {
-		LOGGER.info("method={}, path={}", request.getMethod(), uriInfo.getRequestUri());
+            return Response.status(422).entity(null).build();
+        }
+    }
 
-		List<BookDTO> books = listAllBooksUseCase.execute();
-		LOGGER.info("ok");
-		return Response.status(Response.Status.OK).entity(books).build();
-	}
+    @GET
+    @Path("/{isbn}")
+    public Response getByIsbn(@Context Request request, @Context UriInfo uriInfo, @PathParam("isbn") String isbn) {
+        LOGGER.info("method={}, path={}, isbn={}", request.getMethod(), uriInfo.getRequestUri(), isbn);
+
+        try {
+            var book = getBookUseCase.execute(isbn);
+            LOGGER.info("ok, isbn={}", isbn);
+
+            return Response.status(Response.Status.OK).entity(book).build();
+        } catch (IsbnNotExistsException exception) {
+            LOGGER.error("exception, message={}", exception.getMessage());
+
+            return Response.status(Response.Status.NOT_FOUND).entity(null).build();
+        }
+    }
+
+    @GET
+    public Response listAll(@Context Request request, @Context UriInfo uriInfo) {
+        LOGGER.info("method={}, path={}", request.getMethod(), uriInfo.getRequestUri());
+
+        var books = listAllBooksUseCase.execute();
+        LOGGER.info("ok");
+
+        return Response.status(Response.Status.OK).entity(books).build();
+    }
 }
 
 class AddBookRequest {
-	public String isbn;
-	public String title;
-	public Set<String> authors;
-	public String description;
+    public String isbn;
+    public String title;
+    public Set<String> authors;
+    public String description;
 
-	@Override
-	public String toString() {
-		return "AddBookRequest [isbn=" + isbn + ", title=" + title + ", authors=" + authors + ", description="
-				+ description + "]";
-	}
+    @Override
+    public String toString() {
+        return "AddBookRequest [isbn=" + isbn + ", title=" + title + ", authors=" + authors + ", description="
+                + description + "]";
+    }
 }

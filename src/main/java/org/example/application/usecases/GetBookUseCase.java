@@ -1,7 +1,5 @@
 package org.example.application.usecases;
 
-import java.util.Optional;
-
 import org.example.application.dtos.BookDTO;
 import org.example.application.exceptions.IsbnNotExistsException;
 import org.example.application.ports.in.GetBookUseCasePort;
@@ -17,7 +15,7 @@ public class GetBookUseCase implements GetBookUseCasePort {
 
     @Override
     public BookDTO execute(String isbn) throws IsbnNotExistsException {
-        Optional<BookDTO> book = booksRepository.findByIsbn(isbn);
+        var book = booksRepository.findByIsbn(isbn);
 
         if (!book.isPresent()) {
             throw new IsbnNotExistsException(isbn);

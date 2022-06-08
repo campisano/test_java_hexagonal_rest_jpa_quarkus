@@ -8,9 +8,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.core.Request;
 
 import org.example.application.dtos.AuthorDTO;
 import org.example.application.exceptions.AuthorAlreadyExistsException;
@@ -23,39 +23,43 @@ import org.slf4j.LoggerFactory;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class HTTPAuthorsController {
-	private static final Logger LOGGER = LoggerFactory.getLogger(HTTPAuthorsController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HTTPAuthorsController.class);
 
-	private AddAuthorUseCasePort addAuthorUseCase;
+    private AddAuthorUseCasePort addAuthorUseCase;
 
-	public HTTPAuthorsController(AddAuthorUseCasePort addAuthorUseCase) {
-		this.addAuthorUseCase = addAuthorUseCase;
-	}
+    public HTTPAuthorsController(AddAuthorUseCasePort addAuthorUseCase) {
+        this.addAuthorUseCase = addAuthorUseCase;
+    }
 
-	@POST
-	public Response add(@Context Request request, @Context UriInfo uriInfo, Optional<AddAuthorRequest> body) {
-		LOGGER.info("method={}, path={}, body={}", request.getMethod(), uriInfo.getRequestUri(), body);
+    @POST
+    public Response add(@Context Request request, @Context UriInfo uriInfo, Optional<AddAuthorRequest> body) {
+        LOGGER.info("method={}, path={}, body={}", request.getMethod(), uriInfo.getRequestUri(), body);
 
-		if (!body.isPresent()) {
-			LOGGER.error("request without body");
-			return Response.status(Response.Status.BAD_REQUEST).entity(null).build();
-		}
+        if (!body.isPresent()) {
+            LOGGER.error("request without body");
 
-		try {
-			AuthorDTO author = addAuthorUseCase.execute(new AuthorDTO(body.get().name));
-			LOGGER.info("created, author={}", author);
-			return Response.status(Response.Status.CREATED).entity(author).build();
-		} catch (AuthorInvalidException | AuthorAlreadyExistsException exception) {
-			LOGGER.error("exception, message={}", exception.getMessage());
-			return Response.status(422).entity(null).build();
-		}
-	}
+            return Response.status(Response.Status.BAD_REQUEST).entity(null).build();
+        }
+
+        try {
+            var author = addAuthorUseCase.execute(new AuthorDTO(body.get().name));
+
+            LOGGER.info("created, author={}", author);
+
+            return Response.status(Response.Status.CREATED).entity(author).build();
+        } catch (AuthorInvalidException | AuthorAlreadyExistsException exception) {
+            LOGGER.error("exception, message={}", exception.getMessage());
+
+            return Response.status(422).entity(null).build();
+        }
+    }
 }
 
 class AddAuthorRequest {
-	public String name;
+    public String name;
 
-	@Override
-	public String toString() {
-		return "AddAuthorRequest [name=" + name + "]";
-	}
+    @Override
+    public String toString() {
+        return "AddAuthorRequest [name=" + name + "]";
+    }
 }

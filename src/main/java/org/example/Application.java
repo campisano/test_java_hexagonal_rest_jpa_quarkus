@@ -1,7 +1,7 @@
 package org.example;
 
-import javax.inject.Inject;
 import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
 import javax.ws.rs.ext.Provider;
 
 import org.example.application.ports.out.AuthorsRepositoryPort;
@@ -16,44 +16,44 @@ import io.quarkus.runtime.annotations.QuarkusMain;
 
 @QuarkusMain
 public class Application {
-	public static void main(String[] args) {
-		Quarkus.run(args);
-	}
+    public static void main(String[] args) {
+        Quarkus.run(args);
+    }
 }
 
 @Provider
 class InjectionProvider {
 
-	private AddBookUseCase addBookUseCase;
-	private GetBookUseCase getBookUseCase;
-	private ListAllBooksUseCase listAllBooksUseCase;
-	private AddAuthorUseCase addAuthorUseCase;
+    private AddBookUseCase addBookUseCase;
+    private GetBookUseCase getBookUseCase;
+    private ListAllBooksUseCase listAllBooksUseCase;
+    private AddAuthorUseCase addAuthorUseCase;
 
-	@Inject
-	public InjectionProvider(AuthorsRepositoryPort authorsRepository, BooksRepositoryPort booksRepository) {
-		addBookUseCase = new AddBookUseCase(booksRepository, authorsRepository);
-		getBookUseCase = new GetBookUseCase(booksRepository);
-		listAllBooksUseCase = new ListAllBooksUseCase(booksRepository);
-		addAuthorUseCase = new AddAuthorUseCase(authorsRepository);
-	}
+    @Inject
+    public InjectionProvider(AuthorsRepositoryPort authorsRepository, BooksRepositoryPort booksRepository) {
+        addBookUseCase = new AddBookUseCase(booksRepository, authorsRepository);
+        getBookUseCase = new GetBookUseCase(booksRepository);
+        listAllBooksUseCase = new ListAllBooksUseCase(booksRepository);
+        addAuthorUseCase = new AddAuthorUseCase(authorsRepository);
+    }
 
-	@Produces
-	public AddBookUseCase getAddBookUseCase() {
-		return addBookUseCase;
-	}
+    @Produces
+    public AddBookUseCase getAddBookUseCase() {
+        return addBookUseCase;
+    }
 
-	@Produces
-	public GetBookUseCase getGetBookUseCase() {
-		return getBookUseCase;
-	}
+    @Produces
+    public GetBookUseCase getGetBookUseCase() {
+        return getBookUseCase;
+    }
 
-	@Produces
-	public ListAllBooksUseCase getListAllBooksUseCase() {
-		return listAllBooksUseCase;
-	}
+    @Produces
+    public ListAllBooksUseCase getListAllBooksUseCase() {
+        return listAllBooksUseCase;
+    }
 
-	@Produces
-	public AddAuthorUseCase getAddAuthorUseCase() {
-		return addAuthorUseCase;
-	}
+    @Produces
+    public AddAuthorUseCase getAddAuthorUseCase() {
+        return addAuthorUseCase;
+    }
 }

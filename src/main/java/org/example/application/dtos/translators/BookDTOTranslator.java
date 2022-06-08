@@ -14,8 +14,8 @@ public class BookDTOTranslator {
     }
 
     public static BookDTO toDTO(Book model) {
-        Set<String> authorNames = model.getAuthors().stream().map(author -> author.getName())
-                .collect(Collectors.toSet());
+        var authorNames = model.getAuthors().stream().map(author -> author.getName()).collect(Collectors.toSet());
+
         return new BookDTO(model.getIsbn(), model.getTitle(), authorNames, model.getDescription());
     }
 }

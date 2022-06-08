@@ -18,52 +18,53 @@ import io.quarkus.hibernate.orm.panache.PanacheRepository;
 @ApplicationScoped
 public class JPAAuthorsRepository implements AuthorsRepositoryPort {
 
-	private PanacheAuthorsRepository authorsRepository;
+    private PanacheAuthorsRepository authorsRepository;
 
-	public JPAAuthorsRepository(PanacheAuthorsRepository authorsRepository) {
-		this.authorsRepository = authorsRepository;
-	}
+    public JPAAuthorsRepository(PanacheAuthorsRepository authorsRepository) {
+        this.authorsRepository = authorsRepository;
+    }
 
-	@Transactional
-	@Override
-	public AuthorDTO create(AuthorDTO dto) {
-		AuthorModel model = AuthorModelTranslator.fromDTO(dto);
+    @Transactional
+    @Override
+    public AuthorDTO create(AuthorDTO dto) {
+        var model = AuthorModelTranslator.fromDTO(dto);
 
-		model = authorsRepository.save(model);
+        model = authorsRepository.save(model);
 
-		return AuthorModelTranslator.toDTO(model);
-	}
+        return AuthorModelTranslator.toDTO(model);
+    }
 
-	@Override
-	public Optional<AuthorDTO> findByName(String name) {
-		Optional<AuthorModel> optModel = authorsRepository.findByName(name);
+    @Override
+    public Optional<AuthorDTO> findByName(String name) {
+        var optModel = authorsRepository.findByName(name);
 
-		if (!optModel.isPresent()) {
-			return Optional.<AuthorDTO>empty();
-		}
+        if (!optModel.isPresent()) {
+            return Optional.<AuthorDTO>empty();
+        }
 
-		return Optional.of(AuthorModelTranslator.toDTO(optModel.get()));
-	}
+        return Optional.of(AuthorModelTranslator.toDTO(optModel.get()));
+    }
 
-	@Override
-	public Set<AuthorDTO> findByNameIn(Set<String> authorNames) {
-		return AuthorModelTranslator.toDTO(new HashSet<AuthorModel>(authorsRepository.findByNameIn(authorNames)));
-	}
+    @Override
+    public Set<AuthorDTO> findByNameIn(Set<String> authorNames) {
+        return AuthorModelTranslator.toDTO(new HashSet<AuthorModel>(authorsRepository.findByNameIn(authorNames)));
+    }
 }
 
 @ApplicationScoped
 class PanacheAuthorsRepository implements PanacheRepository<AuthorModel> {
-	public Optional<AuthorModel> findByName(String name) {
-		return find("name", name).singleResultOptional();
-	}
+    public Optional<AuthorModel> findByName(String name) {
+        return find("name", name).singleResultOptional();
+    }
 
-	public AuthorModel save(AuthorModel model) {
-		persist(model);
-		flush();
-		return model;
-	}
+    public AuthorModel save(AuthorModel model) {
+        persist(model);
+        flush();
 
-	public List<AuthorModel> findByNameIn(Set<String> authors) {
-		return find("name IN ?1", authors).list();
-	}
+        return model;
+    }
+
+    public List<AuthorModel> findByNameIn(Set<String> authors) {
+        return find("name IN ?1", authors).list();
+    }
 }
