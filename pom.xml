@@ -1,12 +1,12 @@
-<?xml version="1.0"?>
-<project
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
-  xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.example</groupId>
   <artifactId>test_java_hexagonal_rest_jpa_quarkus</artifactId>
-  <version>0.1.0</version>
+  <version>1.0.0</version>
   <properties>
     <compiler-plugin.version>3.8.1</compiler-plugin.version>
     <failsafe.useModulePath>false</failsafe.useModulePath>
@@ -58,9 +58,11 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-jacoco</artifactId>
+      <groupId>org.jacoco</groupId>
+      <artifactId>org.jacoco.agent</artifactId>
+      <classifier>runtime</classifier>
       <scope>test</scope>
+      <version>${jacoco.version}</version>
     </dependency>
   </dependencies>
   <build>
@@ -96,7 +98,7 @@
           <excludedGroups>integration</excludedGroups>
           <systemPropertyVariables>
             <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-            <maven.home>${maven.home}</maven.home>
+            <jacoco-agent.destfile>${project.build.directory}/jacoco-ut.exec</jacoco-agent.destfile>
           </systemPropertyVariables>
         </configuration>
         <executions>
@@ -110,7 +112,7 @@
               <excludedGroups>!integration</excludedGroups>
               <groups>integration</groups>
               <systemPropertyVariables>
-                <jacoco-agent.destfile>${project.build.directory}/jacoco.exec</jacoco-agent.destfile>
+                <jacoco-agent.destfile>${project.build.directory}/jacoco-it.exec</jacoco-agent.destfile>
               </systemPropertyVariables>
             </configuration>
           </execution>
@@ -122,25 +124,79 @@
         <version>${jacoco.version}</version>
         <executions>
           <execution>
-            <id>default-prepare-agent</id>
+            <id>instrument-ut</id>
             <goals>
-              <goal>prepare-agent</goal>
+              <goal>instrument</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>restore-ut</id>
+            <goals>
+              <goal>restore-instrumented-classes</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>report-ut</id>
+            <goals>
+              <goal>report</goal>
             </goals>
             <configuration>
-              <exclClassLoaders>*QuarkusClassLoader</exclClassLoaders>
-              <destFile>${project.build.directory}/jacoco.exec</destFile>
-              <append>true</append>
+              <dataFile>${project.build.directory}/jacoco-ut.exec</dataFile>
+              <outputDirectory>${project.reporting.outputDirectory}/jacoco-ut</outputDirectory>
             </configuration>
           </execution>
           <execution>
-            <id>report</id>
+            <id>instrument-it</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+              <goal>instrument</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>restore-it</id>
+            <phase>post-integration-test</phase>
+            <goals>
+              <goal>restore-instrumented-classes</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>report-it</id>
             <phase>post-integration-test</phase>
             <goals>
               <goal>report</goal>
             </goals>
             <configuration>
+              <dataFile>${project.build.directory}/jacoco-it.exec</dataFile>
+              <outputDirectory>${project.reporting.outputDirectory}/jacoco-it</outputDirectory>
+            </configuration>
+          </execution>
+          <execution>
+            <id>merge-results</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>merge</goal>
+            </goals>
+            <configuration>
+              <fileSets>
+                <fileSet>
+                  <directory>${project.build.directory}</directory>
+                  <includes>
+                    <include>*.exec</include>
+                  </includes>
+                </fileSet>
+              </fileSets>
+              <destFile>${project.build.directory}/jacoco.exec</destFile>
+            </configuration>
+          </execution>
+          <execution>
+            <id>post-merge-report</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+            <configuration>
               <dataFile>${project.build.directory}/jacoco.exec</dataFile>
-              <outputDirectory>${project.build.directory}/jacoco-report</outputDirectory>
+              <outputDirectory>${project.reporting.outputDirectory}/jacoco</outputDirectory>
             </configuration>
           </execution>
         </executions>
