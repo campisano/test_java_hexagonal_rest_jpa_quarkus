@@ -3,6 +3,7 @@ package org.example.adapters.controllers;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -29,6 +30,7 @@ import org.slf4j.LoggerFactory;
 @Path("/v1/books")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@Singleton
 public class HTTPBooksController {
     private static final Logger LOGGER = LoggerFactory.getLogger(HTTPBooksController.class);
 

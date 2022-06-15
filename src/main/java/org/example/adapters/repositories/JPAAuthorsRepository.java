@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Singleton;
 import javax.transaction.Transactional;
 
 import org.example.adapters.repositories.models.AuthorModel;
@@ -15,7 +15,7 @@ import org.example.application.ports.out.AuthorsRepositoryPort;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 
-@ApplicationScoped
+@Singleton
 public class JPAAuthorsRepository implements AuthorsRepositoryPort {
 
     private PanacheAuthorsRepository authorsRepository;
@@ -51,7 +51,7 @@ public class JPAAuthorsRepository implements AuthorsRepositoryPort {
     }
 }
 
-@ApplicationScoped
+@Singleton
 class PanacheAuthorsRepository implements PanacheRepository<AuthorModel> {
     public Optional<AuthorModel> findByName(String name) {
         return find("name", name).singleResultOptional();

@@ -2,6 +2,7 @@ package org.example.adapters.controllers;
 
 import java.util.Optional;
 
+import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -22,6 +23,7 @@ import org.slf4j.LoggerFactory;
 @Path("/v1/authors")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@Singleton
 public class HTTPAuthorsController {
     private static final Logger LOGGER = LoggerFactory.getLogger(HTTPAuthorsController.class);
 

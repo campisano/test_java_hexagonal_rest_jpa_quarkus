@@ -2,7 +2,7 @@ package org.example;
 
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
-import javax.ws.rs.ext.Provider;
+import javax.inject.Singleton;
 
 import org.example.application.ports.out.AuthorsRepositoryPort;
 import org.example.application.ports.out.BooksRepositoryPort;
@@ -11,17 +11,7 @@ import org.example.application.usecases.AddBookUseCase;
 import org.example.application.usecases.GetBookUseCase;
 import org.example.application.usecases.ListAllBooksUseCase;
 
-import io.quarkus.runtime.Quarkus;
-import io.quarkus.runtime.annotations.QuarkusMain;
-
-@QuarkusMain
-public class Application {
-    public static void main(String[] args) {
-        Quarkus.run(args);
-    }
-}
-
-@Provider
+@Singleton
 class InjectionProvider {
 
     private AddBookUseCase addBookUseCase;
