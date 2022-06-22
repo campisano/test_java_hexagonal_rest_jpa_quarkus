@@ -10,8 +10,9 @@ docker pull "${DOCKER_IMAGE}"
 
 # build code isolatedly
 docker run --rm \
-       --volume /var/run/docker.sock:/var/run/docker.sock \
-       --mount type=bind,source="$(pwd)",target=/srv/repository \
-      "${DOCKER_IMAGE}" \
+       --mount type=bind,source="$(pwd)/${CACHE_DIR}",target=/srv/cache \
+       --mount type=bind,source="$(pwd)/${BUILD_DIR}",target=/srv/build \
+       --mount type=bind,source="$(pwd)",target=/srv/repo,readonly \
+       "${DOCKER_IMAGE}" \
        /bin/bash -c \
-       'cd /srv/repository; ./ci/custom/internal_build.sh'
+       'cp -a /srv/repo /srv/exec; cd /srv/exec; ./ci/custom/internal_build.sh'

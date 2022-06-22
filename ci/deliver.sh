@@ -21,6 +21,7 @@ git push origin tag ${RELEASE_TAG}
 docker pull "${DOCKER_REPOSITORY}:${RELEASE_TAG}" &> /dev/null && echo "ERROR: docker image \"${DOCKER_REPOSITORY}:${RELEASE_TAG}\" already exists" && exit 1
 
 # build docker image
+docker buildx ls
 docker buildx create --use
 docker buildx build --push --platform=linux/amd64,linux/arm64/v8  \
        --build-arg "FROM_IMAGE=${DOCKER_IMAGE_FROM=}" \

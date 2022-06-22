@@ -1,41 +1,53 @@
-image: riccardocampisano/public:docker_buildx_master
-
 services:
-  - docker:stable-dind
-
-before_script:
-  - apk add --no-cache bash git xmlstarlet
-  - mkdir -m 777 -p .custom_cache
+  - docker:dind
 
 stages:
-  - test
-  - deliver
+  - integration
+  - delivery
+  - deployment
 
-Test:
-  stage: test
-  only:
-    - branches
-  except:
-    - master
+.common:
   cache:
-    key: custom-cache-$CI_COMMIT_REF_SLUG
-    paths:
-      - .custom-cache
+    key: ${CACHE_DIR}-${CI_COMMIT_REF_SLUG}
+    paths: ["${CACHE_DIR}"]
+  artifacts:
+    paths: ["${BUILD_DIR}"]
+  before_script:
+    - apk add --no-cache bash
+    - mkdir -m 777 -p ${CACHE_DIR} ${BUILD_DIR}
+
+CI_amd64:
+  stage: integration
+  variables:
+    ARCH: amd64
+    CACHE_DIR: .ci_cache_${ARCH}
+    BUILD_DIR: .ci_build_${ARCH}
+  image: docker:latest
+  extends: .common
+  only: ["branches"]
   script:
     - ./ci/build.sh
     - ./ci/test.sh
     - ./ci/coverage.sh
 
-Deliver:
-  stage: deliver
-  only:
-    - master
-  cache:
-    key: custom-cache-$CI_COMMIT_REF_SLUG
-    paths:
-      - .custom-cache
+CI_arm64v8:
+  stage: integration
+  variables:
+    ARCH: arm64v8
+    CACHE_DIR: .ci_cache_${ARCH}
+    BUILD_DIR: .ci_build_${ARCH}
+  image: docker:latest
+  extends: .common
+  only: ["branches"]
   script:
-    - ./ci/build.sh
-    - ./ci/test.sh
+    - ./ci/build_arm64v8.sh
+
+CD:
+  stage: delivery
+  image: riccardocampisano/public:docker_buildx_master
+  only: ["master"]
+  needs: ["CI_amd64","CI_arm64v8"]
+  before_script:
+    - apk add --no-cache bash git xmlstarlet
+  script:
     - ./ci/deliver.sh
-    - ./ci/coverage.sh
